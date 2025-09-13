@@ -1,0 +1,27 @@
+# Node / Next / pnpm / Turbo
+node_modules/
+.pnp.*
+.next/
+.out/
+.turbo/
+dist/
+
+# Env y secretos
+.env
+*.env
+**/.env
+**/.env.local
+packages/db/.env
+apps/**/.env.local
+
+# Logs / PIDs
+*.log
+web.log
+.web.pid
+
+# Docker
+docker-data/
+**/.DS_Store
+
+# Prisma
+prisma/dev.db

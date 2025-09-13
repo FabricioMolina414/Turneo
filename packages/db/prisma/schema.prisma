@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Salon {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  domain     String?  @unique
+  subdomain  String?  @unique
+  timezone   String   @default("America/Argentina/Cordoba")
+  theme      Json
+  logoUrl    String?
+  faviconUrl String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  owners       UserSalonRole[]
+  services     Service[]
+  staff        Staff[]
+  appointments Appointment[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  phone        String?
+  roles        UserSalonRole[]
+  staff        Staff[]
+  appointments Appointment[] @relation("CustomerAppointments")
+}
+
+model UserSalonRole {
+  userId  String
+  salonId String
+  role    Role
+
+  user  User  @relation(fields: [userId], references: [id])
+  salon Salon @relation(fields: [salonId], references: [id])
+
+  @@id([userId, salonId])
+}
+
+model Service {
+  id           String   @id @default(cuid())
+  salonId      String
+  name         String
+  durationMin  Int
+  priceCents   Int
+  active       Boolean  @default(true)
+
+  salon        Salon    @relation(fields: [salonId], references: [id])
+  appointments Appointment[]
+}
+
+model Staff {
+  id           String   @id @default(cuid())
+  userId       String
+  salonId      String
+  displayName  String
+  active       Boolean  @default(true)
+
+  salon        Salon    @relation(fields: [salonId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+  appointments Appointment[]
+  timeOffs     TimeOff[]
+  breaks       StaffBreak[]
+}
+
+model Appointment {
+  id         String             @id @default(cuid())
+  salonId    String
+  serviceId  String
+  staffId    String
+  customerId String
+  start      DateTime
+  end        DateTime
+  status     AppointmentStatus  @default(pending)
+  notes      String?
+
+  salon      Salon    @relation(fields: [salonId], references: [id])
+  service    Service  @relation(fields: [serviceId], references: [id])
+  staff      Staff    @relation(fields: [staffId], references: [id])
+  customer   User     @relation("CustomerAppointments", fields: [customerId], references: [id])
+
+  @@index([salonId, start, end])
+}
+
+model StaffBreak {
+  id      String   @id @default(cuid())
+  staffId String
+  start   DateTime
+  end     DateTime
+  reason  String?
+
+  staff   Staff    @relation(fields: [staffId], references: [id])
+
+  @@index([staffId, start, end])
+}
+
+model TimeOff {
+  id      String   @id @default(cuid())
+  staffId String
+  start   DateTime
+  end     DateTime
+  reason  String?
+
+  staff   Staff    @relation(fields: [staffId], references: [id])
+
+  @@index([staffId, start, end])
+}
+
+enum Role {
+  superadmin
+  owner
+  staff
+  customer
+}
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+  no_show
+}

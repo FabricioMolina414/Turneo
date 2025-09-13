@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@layer theme, base, components, utilities;
+
+/* registra el plugin y la fuente de estilos de HeroUI */
+@plugin '../styles/hero.ts';
+@source '../../../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+/* ^ Ajustá este path si tu estructura difiere; la idea es apuntar al node_modules raíz */
