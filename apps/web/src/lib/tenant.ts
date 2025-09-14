@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
-import { prisma } from "@/db"; // Adjusted import path, use your actual prisma path
+import { prisma } from "@db";
 
 export async function getTenant() {
-  const h = await headers();
+  const h = headers();
   const host = h.get("x-tenant-host") ?? "";
   const slug = h.get("x-tenant-slug") ?? undefined;
   const surface = (h.get("x-surface") as "public" | "admin" | null) ?? null;
